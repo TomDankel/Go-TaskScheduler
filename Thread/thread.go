@@ -39,6 +39,10 @@ func (th *Thread) Control() int {
 			if play == 1 {
 				return 0
 			}
+			kill = <-th.KillCh
+			if kill == 1 {
+				return 1
+			}
 		}
 	}
 	return 0

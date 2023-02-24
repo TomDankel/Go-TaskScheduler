@@ -1,6 +1,6 @@
 package thread
 
-type Multithreading interface {
+type Task interface {
 	Continue()
 	Suspend()
 	Play(func(chan int, chan int, chan int))
@@ -8,25 +8,25 @@ type Multithreading interface {
 	Control() int
 }
 
-type Thread struct {
+type TaskI struct {
 	SuspendCh chan int
 	PlayCh    chan int
 	KillCh    chan int
 }
 
-func (th *Thread) Play(method func(suspend chan int, play chan int, kill chan int)) {
+func (th *TaskI) Play(method func(suspend chan int, play chan int, kill chan int)) {
 	go method(th.SuspendCh, th.PlayCh, th.KillCh)
 }
-func (th *Thread) Continue() {
+func (th *TaskI) Continue() {
 	th.PlayCh <- 1
 }
-func (th *Thread) Suspend() {
+func (th *TaskI) Suspend() {
 	th.SuspendCh <- 1
 }
-func (th *Thread) Kill() {
+func (th *TaskI) Kill() {
 	th.KillCh <- 1
 }
-func (th *Thread) Control() int {
+func (th *TaskI) Control() int {
 	pause := <-th.SuspendCh
 	kill := <-th.KillCh
 	var play int

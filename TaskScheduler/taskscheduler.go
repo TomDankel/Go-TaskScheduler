@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/thread"
+	"github.com/task"
 )
 
 func main() {
@@ -10,8 +10,8 @@ func main() {
 	start := make(chan int)
 	suspend := make(chan int)
 	kill := make(chan int)
-	threads := &thread.TaskI{SuspendCh: start, PlayCh: suspend, KillCh: kill}
-	multi := thread.Task(threads)
+	threads := &task.TaskI{SuspendCh: start, PlayCh: suspend, KillCh: kill}
+	multi := task.Task(threads)
 	multi.Suspend()
 	fmt.Println(multi)
 }

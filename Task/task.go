@@ -8,7 +8,7 @@ type Task interface {
 	Play(func(*TaskI))
 	Kill()
 	Control() int
-	CheckChanel(chan bool) bool
+	checkChanel(chan bool) bool
 }
 
 type TaskI struct {
@@ -34,16 +34,16 @@ func (th *TaskI) Kill() {
 }
 func (th *TaskI) Control() int {
 	fmt.Println("enter controll")
-	if th.CheckChanel(th.KillCh) {
+	if th.checkChanel(th.KillCh) {
 		return 1
 	}
-	if th.CheckChanel(th.SuspendCh) {
+	if th.checkChanel(th.SuspendCh) {
 		for true {
 			fmt.Println("Routine Paused")
-			if th.CheckChanel(th.PlayCh) {
+			if th.checkChanel(th.PlayCh) {
 				return 0
 			}
-			if th.CheckChanel(th.KillCh) {
+			if th.checkChanel(th.KillCh) {
 				return 1
 			}
 		}
@@ -51,7 +51,7 @@ func (th *TaskI) Control() int {
 	return 0
 }
 
-func (th *TaskI) CheckChanel(chanel chan bool) bool {
+func (th *TaskI) checkChanel(chanel chan bool) bool {
 	select {
 	case x, ok := <-chanel:
 		if ok {

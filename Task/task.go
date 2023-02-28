@@ -1,9 +1,11 @@
 package task
 
+import "fmt"
+
 type Task interface {
 	Continue()
 	Suspend()
-	Play(func(chan int, chan int, chan int))
+	Play(func(*TaskI))
 	Kill()
 	Control() int
 }
@@ -14,27 +16,34 @@ type TaskI struct {
 	KillCh    chan int
 }
 
-func (th *TaskI) Play(method func(suspend chan int, play chan int, kill chan int)) {
-	go method(th.SuspendCh, th.PlayCh, th.KillCh)
+func (th *TaskI) Play(method func(task *TaskI)) {
+	go method(th)
 }
 func (th *TaskI) Continue() {
+	fmt.Println("Continue Go Routine")
 	th.PlayCh <- 1
 }
 func (th *TaskI) Suspend() {
+	fmt.Println("Suspend Go Routine")
 	th.SuspendCh <- 1
 }
 func (th *TaskI) Kill() {
+	fmt.Println("Kill Go Routine")
 	th.KillCh <- 1
 }
 func (th *TaskI) Control() int {
+	fmt.Println("enter controll")
 	pause := <-th.SuspendCh
 	kill := <-th.KillCh
+	fmt.Println("Paused value:")
+	fmt.Println(pause)
 	var play int
 	if kill == 1 {
 		return 1
 	}
 	if pause == 1 {
 		for true {
+			fmt.Println("Routine Paused")
 			play = <-th.PlayCh
 			if play == 1 {
 				return 0

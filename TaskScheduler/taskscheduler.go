@@ -10,9 +10,9 @@ const N = 100
 
 func main() {
 	fmt.Println("Hello World")
-	start := make(chan int)
-	suspend := make(chan int)
-	kill := make(chan int)
+	start := make(chan bool)
+	suspend := make(chan bool)
+	kill := make(chan bool)
 	threads := &task.TaskI{SuspendCh: start, PlayCh: suspend, KillCh: kill}
 	multi := task.Task(threads)
 	multi.Play(fibonacci)

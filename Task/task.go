@@ -11,9 +11,9 @@ type Task interface {
 }
 
 type TaskI struct {
-	SuspendCh chan int
-	PlayCh    chan int
-	KillCh    chan int
+	SuspendCh chan bool
+	PlayCh    chan bool
+	KillCh    chan bool
 }
 
 func (th *TaskI) Play(method func(task *TaskI)) {
@@ -21,35 +21,28 @@ func (th *TaskI) Play(method func(task *TaskI)) {
 }
 func (th *TaskI) Continue() {
 	fmt.Println("Continue Go Routine")
-	th.PlayCh <- 1
+	th.PlayCh <- true
 }
 func (th *TaskI) Suspend() {
 	fmt.Println("Suspend Go Routine")
-	th.SuspendCh <- 1
+	th.SuspendCh <- true
 }
 func (th *TaskI) Kill() {
 	fmt.Println("Kill Go Routine")
-	th.KillCh <- 1
+	th.KillCh <- true
 }
 func (th *TaskI) Control() int {
 	fmt.Println("enter controll")
-	pause := <-th.SuspendCh
-	kill := <-th.KillCh
-	fmt.Println("Paused value:")
-	fmt.Println(pause)
-	var play int
-	if kill == 1 {
+	if <-th.KillCh {
 		return 1
 	}
-	if pause == 1 {
+	if <-th.SuspendCh {
 		for true {
 			fmt.Println("Routine Paused")
-			play = <-th.PlayCh
-			if play == 1 {
+			if <-th.PlayCh {
 				return 0
 			}
-			kill = <-th.KillCh
-			if kill == 1 {
+			if <-th.KillCh {
 				return 1
 			}
 		}

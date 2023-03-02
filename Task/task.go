@@ -3,12 +3,11 @@ package task
 import "fmt"
 
 type Task interface {
-	Continue()
+	Resume()
 	Suspend()
-	Play(func(*TaskI))
+	PlayFunction(func(*TaskI))
 	Kill()
 	Control() int
-	checkChanel(chan bool) bool
 }
 
 type TaskI struct {
@@ -17,11 +16,11 @@ type TaskI struct {
 	KillCh    chan bool
 }
 
-func (th *TaskI) Play(method func(task *TaskI)) {
+func (th *TaskI) PlayFunction(method func(task *TaskI)) {
 	go method(th)
 }
-func (th *TaskI) Continue() {
-	fmt.Println("Continue Go Routine")
+func (th *TaskI) Resume() {
+	fmt.Println("Resume Go Routine")
 	th.PlayCh <- true
 }
 func (th *TaskI) Suspend() {

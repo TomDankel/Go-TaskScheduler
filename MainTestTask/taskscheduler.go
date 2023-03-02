@@ -15,9 +15,9 @@ func main() {
 	kill := make(chan bool)
 	threads := &task.TaskI{SuspendCh: start, PlayCh: suspend, KillCh: kill}
 	multi := task.Task(threads)
-	multi.Play(fibonacci)
+	multi.PlayFunction(fibonacci)
 	multi.Suspend()
-	multi.Continue()
+	multi.Resume()
 	time.Sleep(10)
 	multi.Kill()
 }

@@ -3,46 +3,59 @@ package task
 import "fmt"
 
 type Task interface {
+	PlayFunction(func(Task))
+	PlayMethod(func())
 	Resume()
 	Suspend()
-	PlayFunction(func(*TaskI))
 	Kill()
 	Control() int
 }
 
 type TaskI struct {
-	SuspendCh chan bool
-	PlayCh    chan bool
-	KillCh    chan bool
+	suspendCh chan bool
+	playCh    chan bool
+	killCh    chan bool
 }
 
-func (th *TaskI) PlayFunction(method func(task *TaskI)) {
+func NewTaskI() *TaskI {
+	t := &TaskI{}
+	t.suspendCh = make(chan bool)
+	t.playCh = make(chan bool)
+	t.killCh = make(chan bool)
+	return t
+}
+
+func (th *TaskI) PlayMethod(method func()) {
+	go method()
+}
+
+func (th *TaskI) PlayFunction(method func(task Task)) {
 	go method(th)
 }
 func (th *TaskI) Resume() {
 	fmt.Println("Resume Go Routine")
-	th.PlayCh <- true
+	th.playCh <- true
 }
 func (th *TaskI) Suspend() {
 	fmt.Println("Suspend Go Routine")
-	th.SuspendCh <- true
+	th.suspendCh <- true
 }
 func (th *TaskI) Kill() {
 	fmt.Println("Kill Go Routine")
-	th.KillCh <- true
+	th.killCh <- true
 }
 func (th *TaskI) Control() int {
 	fmt.Println("enter controll")
-	if th.checkChanel(th.KillCh) {
+	if th.checkChanel(th.killCh) {
 		return 1
 	}
-	if th.checkChanel(th.SuspendCh) {
+	if th.checkChanel(th.suspendCh) {
 		for true {
 			fmt.Println("Routine Paused")
-			if th.checkChanel(th.PlayCh) {
+			if th.checkChanel(th.playCh) {
 				return 0
 			}
-			if th.checkChanel(th.KillCh) {
+			if th.checkChanel(th.killCh) {
 				return 1
 			}
 		}

@@ -1,5 +1,6 @@
 package main
 
+//authors: Tom Dankel and Luca Schwarz
 import (
 	"fmt"
 	"github.com/task"
@@ -16,6 +17,13 @@ func main() {
 	taskuse.Resume()
 	time.Sleep(10)
 	taskuse.Kill()
+
+	// new edfsh
+	//sh (fib 11:32
+	//sh fib 11:30
+
+	//end edf und dann alle kill
+	//waitgroup für alle go routinen
 
 	fmt.Println("Hello PlayMethod")
 	fib := NewFibonacci()

@@ -1,5 +1,6 @@
 package task
 
+//authors: Tom Dankel and Luca Schwarz
 import "fmt"
 
 type Task interface {
@@ -13,16 +14,16 @@ type Task interface {
 
 type TaskI struct {
 	suspendCh chan bool
-	playCh    chan bool
+	resumeCh  chan bool
 	killCh    chan bool
 }
 
 func NewTaskI() *TaskI {
-	t := &TaskI{}
-	t.suspendCh = make(chan bool)
-	t.playCh = make(chan bool)
-	t.killCh = make(chan bool)
-	return t
+	task := &TaskI{}
+	task.suspendCh = make(chan bool)
+	task.resumeCh = make(chan bool)
+	task.killCh = make(chan bool)
+	return task
 }
 
 func (th *TaskI) PlayMethod(method func()) {
@@ -34,7 +35,7 @@ func (th *TaskI) PlayFunction(method func(task Task)) {
 }
 func (th *TaskI) Resume() {
 	fmt.Println("Resume Go Routine")
-	th.playCh <- true
+	th.resumeCh <- true
 }
 func (th *TaskI) Suspend() {
 	fmt.Println("Suspend Go Routine")
@@ -47,15 +48,18 @@ func (th *TaskI) Kill() {
 func (th *TaskI) Control() int {
 	fmt.Println("enter controll")
 	if th.checkChanel(th.killCh) {
+		fmt.Println("Routine Killed")
 		return 1
 	}
 	if th.checkChanel(th.suspendCh) {
 		for true {
 			fmt.Println("Routine Paused")
-			if th.checkChanel(th.playCh) {
+			if th.checkChanel(th.resumeCh) {
+				fmt.Println("Routine Resumed")
 				return 0
 			}
 			if th.checkChanel(th.killCh) {
+				fmt.Println("Routine Killed")
 				return 1
 			}
 		}
@@ -65,13 +69,12 @@ func (th *TaskI) Control() int {
 
 func (th *TaskI) checkChanel(chanel chan bool) bool {
 	select {
-	case x, ok := <-chanel:
-		if ok {
-			fmt.Printf("read from chanel: %t", x)
+	case message := <-chanel:
+		if message {
+			fmt.Printf("read from chanel: %t\n", message)
 			return true
-		} else {
-			return false
 		}
+		return false
 	default:
 		return false
 	}

@@ -1,0 +1,100 @@
+package main
+
+import (
+    "container/heap"
+    "fmt"
+    "time"
+)
+
+// Task represents a single task to be scheduled
+type Task struct {
+    Name         string
+    Deadline     time.Time
+    Execution    time.Duration
+    LastExecuted time.Time
+}
+
+// TaskHeap is a priority queue of tasks sorted by deadline
+type TaskHeap []*Task
+
+func (h TaskHeap) Len() int           { return len(h) }
+func (h TaskHeap) Less(i, j int) bool { return h[i].Deadline.Before(h[j].Deadline) }
+func (h TaskHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+
+func (h *TaskHeap) Push(x interface{}) {
+    *h = append(*h, x.(*Task))
+}
+
+func (h *TaskHeap) Pop() interface{} {
+    old := *h
+    n := len(old)
+    x := old[n-1]
+    *h = old[0 : n-1]
+    return x
+}
+
+// Scheduler is responsible for scheduling tasks
+type Scheduler struct {
+    Tasks  TaskHeap
+    QuitCh chan bool
+}
+
+// NewScheduler creates a new scheduler
+func NewScheduler() *Scheduler {
+    s := &Scheduler{
+        Tasks:  make(TaskHeap, 0),
+        QuitCh: make(chan bool),
+    }
+    heap.Init(&s.Tasks)
+    return s
+}
+
+// ScheduleTask adds a new task to the scheduler
+func (s *Scheduler) ScheduleTask(name string, deadline time.Time, execution time.Duration) {
+    task := &Task{
+        Name:         name,
+        Deadline:     deadline,
+        Execution:    execution,
+        LastExecuted: time.Now(),
+    }
+    heap.Push(&s.Tasks, task)
+}
+
+// Run starts the scheduler and runs tasks as they become due
+func (s *Scheduler) Run() {
+    for {
+        if s.Tasks.Len() == 0 {
+            select {
+            case <-s.QuitCh:
+                return
+            default:
+                time.Sleep(time.Millisecond * 100)
+            }
+        } else {
+            task := s.Tasks[0]
+            if task.Deadline.Before(time.Now()) {
+                fmt.Printf("%s missed deadline by %v\n", task.Name, time.Now().Sub(task.Deadline))
+            } else {
+                time.Sleep(task.Deadline.Sub(time.Now()))
+                heap.Pop(&s.Tasks)
+                fmt.Printf("%s starting execution at %v\n", task.Name, time.Now())
+                time.Sleep(task.Execution)
+                fmt.Printf("%s finished execution at %v\n", task.Name, time.Now())
+                task.LastExecuted = time.Now()
+                if !task.Deadline.After(task.LastExecuted.Add(task.Execution)) {
+                    fmt.Printf("%s missed deadline\n", task.Name)
+                } else {
+                    heap.Push(&s.Tasks, task)
+                }
+            }
+        }
+    }
+}
+
+func main() {
+    s := NewScheduler()
+    s.ScheduleTask("Task 1", time.Now().Add(time.Second*2), time.Second*1)
+    s.ScheduleTask("Task 2", time.Now().Add(time.Second*3), time.Second*1)
+    s.ScheduleTask("Task 3", time.Now().Add(time.Second*5), time.Second*1)
+    s.Run()
+}

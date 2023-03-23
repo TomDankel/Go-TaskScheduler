@@ -3,6 +3,7 @@ package main
 //authors: Tom Dankel and Luca Schwarz
 import (
 	"fmt"
+	EdfScheduler "github.com/edfScheduler"
 	"github.com/task"
 	"time"
 )
@@ -10,7 +11,12 @@ import (
 const N = 100
 
 func main() {
-	fmt.Println("Hello PLayfunction")
+	edf := EdfScheduler.NewEdfScheduler()
+	edf.Schedule(fibonacci, time.Now().Add(time.Minute*3), time.Minute*3)
+	edf.Schedule(fibonacci, time.Now().Add(time.Minute*2), time.Minute*2)
+	edf.Schedule(fibonacci, time.Now().Add(time.Minute*4), time.Minute*4)
+	edf.Schedule(fibonacci, time.Now().Add(time.Minute*1), time.Minute*1)
+	/*fmt.Println("Hello PLayfunction")
 	taskuse := task.NewTaskI()
 	taskuse.PlayFunction(fibonacci)
 	taskuse.Suspend()
@@ -31,7 +37,7 @@ func main() {
 	fib.Suspend()
 	fib.Resume()
 	time.Sleep(10)
-	fib.Kill()
+	fib.Kill()*/
 
 }
 

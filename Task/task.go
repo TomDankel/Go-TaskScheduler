@@ -10,12 +10,15 @@ type Task interface {
 	Suspend()
 	Kill()
 	Control() int
+	Finished()
+	CheckFinished() bool
 }
 
 type TaskI struct {
-	suspendCh chan bool
-	resumeCh  chan bool
-	killCh    chan bool
+	suspendCh  chan bool
+	resumeCh   chan bool
+	killCh     chan bool
+	finishedCh chan bool
 }
 
 func NewTaskI() *TaskI {
@@ -23,6 +26,7 @@ func NewTaskI() *TaskI {
 	task.suspendCh = make(chan bool)
 	task.resumeCh = make(chan bool)
 	task.killCh = make(chan bool)
+	task.finishedCh = make(chan bool)
 	return task
 }
 
@@ -36,6 +40,10 @@ func (th *TaskI) PlayFunction(method func(task Task)) {
 func (th *TaskI) Resume() {
 	fmt.Println("Resume Go Routine")
 	th.resumeCh <- true
+}
+func (th *TaskI) Finished() {
+	fmt.Println("Finished Go Routine")
+	th.finishedCh <- true
 }
 func (th *TaskI) Suspend() {
 	fmt.Println("Suspend Go Routine")
@@ -72,6 +80,18 @@ func (th *TaskI) checkChanel(chanel chan bool) bool {
 	case message := <-chanel:
 		if message {
 			fmt.Printf("read from chanel: %t\n", message)
+			return true
+		}
+		return false
+	default:
+		return false
+	}
+}
+
+func (th *TaskI) CheckFinished() bool {
+	select {
+	case message := <-th.finishedCh:
+		if message {
 			return true
 		}
 		return false

@@ -55,6 +55,7 @@ func fibonacci(task task.Task) {
 		a = b
 		b = c + b
 	}
+	task.Finished()
 }
 
 type Fibonacci struct {

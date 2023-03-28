@@ -99,11 +99,3 @@ func (th *TaskI) CheckFinished() bool {
 		return false
 	}
 }
-
-/*
-control structure in provided method (Recursion not supported?)
-control function to pay attention of channels? --> not possible to communicate to method to pause
-control function use inside provided method? approach a bit more complex than in other languages but possible
-every x time units check for signal in channel --> in controll Pause or kill process (kill logic in provided method?)
-	Pause and play possible in control method
-*/

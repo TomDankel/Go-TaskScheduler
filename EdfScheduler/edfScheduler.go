@@ -1,5 +1,6 @@
 package EdfScheduler
 
+//authors: Tom Dankel and Luca Schwarz
 import (
 	"fmt"
 	"github.com/task"

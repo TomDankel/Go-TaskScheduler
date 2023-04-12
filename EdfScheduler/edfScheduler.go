@@ -11,7 +11,7 @@ import (
 var mutex = &sync.Mutex{}
 
 type EdfScheduler interface {
-	Schedule(func(task.Task), time.Time, time.Duration)
+	Schedule(func(task.Task), time.Time)
 	insertToJobs(job)
 	Run()
 	EndScheduler()
@@ -27,7 +27,6 @@ type SchedulerI struct {
 type job struct {
 	function func(task task.Task)
 	Deadline time.Time
-	Duration time.Duration
 	task     *task.TaskI
 	id       int
 	run      bool
@@ -42,11 +41,10 @@ func NewEdfScheduler() *SchedulerI {
 	return scheduler
 }
 
-func (s *SchedulerI) Schedule(method func(task task.Task), deadline time.Time, duration time.Duration) {
+func (s *SchedulerI) Schedule(method func(task task.Task), deadline time.Time) {
 	job := job{
 		function: method,
 		Deadline: deadline,
-		Duration: duration,
 		task:     task.NewTaskI(),
 		id:       s.id,
 		run:      false,

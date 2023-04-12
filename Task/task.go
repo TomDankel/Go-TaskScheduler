@@ -35,7 +35,6 @@ func (th *TaskI) PlayMethod(method func()) {
 }
 
 func (th *TaskI) PlayFunction(method func(task Task)) {
-	fmt.Println(th)
 	go method(th)
 }
 func (th *TaskI) Resume() {

@@ -4,6 +4,7 @@ package EdfScheduler
 import (
 	"fmt"
 	"github.com/task"
+	"sync"
 	"time"
 )
 
@@ -18,6 +19,7 @@ type SchedulerI struct {
 	jobs []job
 	quit chan bool
 	id   int
+	Wg   sync.WaitGroup
 }
 
 type job struct {
@@ -32,7 +34,7 @@ type job struct {
 func NewEdfScheduler() *SchedulerI {
 	scheduler := &SchedulerI{
 		quit: make(chan bool),
-		jobs: make([]job, 1),
+		jobs: make([]job, 0),
 		id:   0,
 	}
 	return scheduler
@@ -68,6 +70,7 @@ func (s *SchedulerI) insertToJobs(job job) {
 			s.jobs = append(s.jobs, job)
 		}
 	}
+	fmt.Println(s.jobs)
 }
 
 func (s *SchedulerI) EndScheduler() {
@@ -76,42 +79,62 @@ func (s *SchedulerI) EndScheduler() {
 }
 
 func (s *SchedulerI) Run() {
+	defer s.Wg.Done()
 	var currentJob job
+	var removed bool
 	iteration := false
 	for {
 		select {
 		case abort := <-s.quit:
 			if abort {
 				fmt.Println("End EDF Scheduler")
+				if len(s.jobs) > 0 {
+					currentJob.task.Kill()
+				}
 				return
 			}
 		default:
 		}
-		if !iteration {
-			currentJob = s.jobs[0]
-			iteration = true
-		} else {
-			if currentJob.id != s.jobs[0].id {
-				currentJob.task.Suspend()
-				currentJob.run = true
-				s.insertToJobs(currentJob)
+		if len(s.jobs) > 0 {
+
+			if !iteration {
 				currentJob = s.jobs[0]
+				iteration = true
+			} else {
+				if currentJob.id != s.jobs[0].id {
+					if !removed {
+						currentJob.task.Suspend()
+						currentJob.run = true
+						s.insertToJobs(currentJob)
+					}
+					currentJob = s.jobs[0]
+					removed = false
+				}
 			}
+			if currentJob.Deadline.Before(time.Now()) {
+				fmt.Printf("Missed deadline for job: %d", currentJob.id)
+				currentJob.task.Kill()
+				s.jobs = remove(s.jobs)
+				removed = true
+				continue
+			}
+			fin := currentJob.task.CheckFinished()
+			fmt.Println(fin)
+			if fin {
+				fmt.Println("here finished")
+				s.jobs = remove(s.jobs)
+				fmt.Println(s.jobs)
+				removed = true
+				continue
+			}
+			if currentJob.run {
+				fmt.Println("resume job wrong")
+				currentJob.task.Resume()
+			} else {
+				currentJob.task.PlayFunction(currentJob.function)
+			}
+			time.Sleep(time.Second)
 		}
-		if currentJob.Deadline.Before(time.Now()) {
-			fmt.Printf("Missed deadline for job: %d", currentJob.id)
-			s.jobs = remove(s.jobs)
-		}
-		if currentJob.task.CheckFinished() {
-			s.jobs = remove(s.jobs)
-			continue
-		}
-		if currentJob.run {
-			currentJob.task.Resume()
-		} else {
-			currentJob.task.PlayFunction(currentJob.function)
-		}
-		time.Sleep(time.Second)
 	}
 }
 

@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+var mutex = &sync.Mutex{}
+
 type EdfScheduler interface {
 	Schedule(func(task.Task), time.Time, time.Duration)
 	insertToJobs(job)
@@ -54,6 +56,7 @@ func (s *SchedulerI) Schedule(method func(task task.Task), deadline time.Time, d
 }
 
 func (s *SchedulerI) insertToJobs(job job) {
+	mutex.Lock()
 	inserted := false
 	if len(s.jobs) == 0 {
 		s.jobs = append(s.jobs, job)
@@ -70,7 +73,7 @@ func (s *SchedulerI) insertToJobs(job job) {
 			s.jobs = append(s.jobs, job)
 		}
 	}
-	fmt.Println(s.jobs)
+	mutex.Unlock()
 }
 
 func (s *SchedulerI) EndScheduler() {
@@ -139,6 +142,8 @@ func (s *SchedulerI) Run() {
 }
 
 func remove(slice []job) []job {
+	mutex.Lock()
 	slice = slice[1:]
+	mutex.Unlock()
 	return slice
 }

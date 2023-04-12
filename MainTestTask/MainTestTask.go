@@ -16,9 +16,10 @@ func main() {
 	edf.Schedule(fibonacci, time.Now().Add(time.Minute*6), time.Minute*2)
 	edf.Schedule(fibonacci, time.Now().Add(time.Minute*8), time.Minute*4)
 	edf.Schedule(fibonacci, time.Now().Add(time.Minute*4), time.Minute*1)
-	fmt.Println("hello")
 	edf.Wg.Add(1)
 	go edf.Run()
+	time.Sleep(time.Second * 1)
+	edf.Schedule(fibonacci, time.Now().Add(time.Minute*5), time.Minute*1)
 	time.Sleep(time.Second * 10)
 	edf.EndScheduler()
 	edf.Wg.Wait()
@@ -57,7 +58,6 @@ func fibonacci(task task.Task) {
 		if exit == 1 {
 			return
 		}
-		fmt.Println(a)
 		c = a
 		a = b
 		b = c + b

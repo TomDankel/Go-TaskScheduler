@@ -121,17 +121,12 @@ func (s *SchedulerI) Run() {
 				removed = true
 				continue
 			}
-			fin := currentJob.task.CheckFinished()
-			fmt.Println(fin)
-			if fin {
-				fmt.Println("here finished")
+			if currentJob.task.CheckFinished() {
 				s.jobs = remove(s.jobs)
-				fmt.Println(s.jobs)
 				removed = true
 				continue
 			}
 			if currentJob.run {
-				fmt.Println("resume job wrong")
 				currentJob.task.Resume()
 			} else {
 				currentJob.task.PlayFunction(currentJob.function)

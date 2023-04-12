@@ -55,7 +55,6 @@ func (th *TaskI) Kill() {
 	th.killCh <- true
 }
 func (th *TaskI) Control() int {
-	fmt.Println("enter controll")
 	if th.checkChanel(th.killCh) {
 		fmt.Println("Routine Killed")
 		return 1

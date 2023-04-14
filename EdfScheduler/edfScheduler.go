@@ -11,7 +11,7 @@ import (
 var mutex = &sync.Mutex{}
 
 type EdfScheduler interface {
-	Schedule(func(task.Task), time.Time)
+	Schedule(task.Task)
 	insertToJobs(job)
 	Run()
 	EndScheduler()
@@ -25,9 +25,9 @@ type SchedulerI struct {
 }
 
 type job struct {
-	function func(task task.Task)
+	function func()
 	Deadline time.Time
-	task     *task.TaskI
+	task     task.Task
 	id       int
 	run      bool
 }
@@ -41,11 +41,11 @@ func NewEdfScheduler() *SchedulerI {
 	return scheduler
 }
 
-func (s *SchedulerI) Schedule(method func(task task.Task), deadline time.Time) {
+func (s *SchedulerI) Schedule(obj task.Task) {
 	job := job{
-		function: method,
-		Deadline: deadline,
-		task:     task.NewTaskI(),
+		function: obj.Run,
+		Deadline: obj.GetDeadline(),
+		task:     obj,
 		id:       s.id,
 		run:      false,
 	}
@@ -89,8 +89,8 @@ func (s *SchedulerI) Run() {
 		case abort := <-s.quit:
 			if abort {
 				fmt.Println("End EDF Scheduler")
-				if len(s.jobs) > 0 {
-					currentJob.task.Kill()
+				if (len(s.jobs) > 0) && (!currentJob.task.CheckFinished()) {
+					//currentJob.task.Kill()
 				}
 				return
 			}
@@ -120,6 +120,7 @@ func (s *SchedulerI) Run() {
 				continue
 			}
 			if currentJob.task.CheckFinished() {
+				fmt.Printf("finished %d with name: %s\n", currentJob.id, currentJob.task.GetName())
 				s.jobs = remove(s.jobs)
 				removed = true
 				continue
@@ -127,7 +128,7 @@ func (s *SchedulerI) Run() {
 			if currentJob.run {
 				currentJob.task.Resume()
 			} else {
-				currentJob.task.PlayFunction(currentJob.function)
+				currentJob.task.PlayMethod(currentJob.function)
 			}
 			time.Sleep(time.Second)
 		}

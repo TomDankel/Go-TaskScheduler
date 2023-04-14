@@ -73,7 +73,7 @@ func NewFibonacci() *Fibonacci {
 	return &Fibonacci{task.NewTaskI()}
 }
 
-func (fib *Fibonacci) fibonacci() {
+func (fib *Fibonacci) Run() {
 	a := 0
 	b := 1
 	c := 0
@@ -88,3 +88,11 @@ func (fib *Fibonacci) fibonacci() {
 		b = c + b
 	}
 }
+
+/*
+	3 tasks:
+		- 10ms execution alle 100ms
+		- 100ms execution alle 1000ms
+		- 2000ms execution alle 10000ms
+	Ausgabe: name
+*/

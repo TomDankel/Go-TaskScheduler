@@ -1,7 +1,10 @@
 package task
 
 //authors: Tom Dankel and Luca Schwarz
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 type Task interface {
 	PlayFunction(func(Task))
@@ -12,6 +15,11 @@ type Task interface {
 	Control() int
 	Finished()
 	CheckFinished() bool
+	SetName(string)
+	GetName() string
+	SetDeadline(time.Time)
+	GetDeadline() time.Time
+	Run()
 }
 
 type TaskI struct {
@@ -19,6 +27,8 @@ type TaskI struct {
 	resumeCh   chan bool
 	killCh     chan bool
 	finishedCh chan bool
+	name       string
+	deadline   time.Time
 }
 
 func NewTaskI() *TaskI {
@@ -52,6 +62,21 @@ func (th *TaskI) Suspend() {
 func (th *TaskI) Kill() {
 	fmt.Println("Kill Go Routine")
 	th.killCh <- true
+}
+func (th *TaskI) SetName(name string) {
+	th.name = name
+}
+func (th *TaskI) GetName() string {
+	return th.name
+}
+func (th *TaskI) SetDeadline(deadline time.Time) {
+	th.deadline = deadline
+}
+func (th *TaskI) GetDeadline() time.Time {
+	return th.deadline
+}
+func (th *TaskI) Run() {
+
 }
 func (th *TaskI) Control() int {
 	if th.checkChanel(th.killCh) {

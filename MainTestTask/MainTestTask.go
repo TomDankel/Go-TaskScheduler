@@ -50,7 +50,7 @@ func (fib *Fibonacci) Run() {
 	c := 0
 	for i := 0; i < fib.iteration; i++ {
 		exit := fib.Control()
-		if exit == 1 {
+		if exit {
 			return
 		}
 		c = a

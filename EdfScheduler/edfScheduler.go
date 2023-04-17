@@ -89,9 +89,9 @@ func (s *SchedulerI) Run() {
 		case abort := <-s.quit:
 			if abort {
 				fmt.Println("End EDF Scheduler")
-				if (len(s.jobs) > 0) && (!currentJob.task.CheckFinished()) {
+				/*if (len(s.jobs) > 0) && (!currentJob.task.CheckFinished()) {
 					//currentJob.task.Kill()
-				}
+				}*/
 				return
 			}
 		default:

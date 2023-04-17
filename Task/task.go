@@ -12,7 +12,7 @@ type Task interface {
 	Resume()
 	Suspend()
 	Kill()
-	Control() int
+	Control() bool
 	Finished()
 	CheckFinished() bool
 	SetName(string)
@@ -78,25 +78,25 @@ func (th *TaskI) GetDeadline() time.Time {
 func (th *TaskI) Run() {
 
 }
-func (th *TaskI) Control() int {
+func (th *TaskI) Control() bool {
 	if th.checkChanel(th.killCh) {
 		fmt.Println("Routine Killed")
-		return 1
+		return true
 	}
 	if th.checkChanel(th.suspendCh) {
 		for true {
 			fmt.Println("Routine Paused")
 			if th.checkChanel(th.resumeCh) {
 				fmt.Println("Routine Resumed")
-				return 0
+				return false
 			}
 			if th.checkChanel(th.killCh) {
 				fmt.Println("Routine Killed")
-				return 1
+				return true
 			}
 		}
 	}
-	return 0
+	return false
 }
 
 func (th *TaskI) checkChanel(chanel chan bool) bool {

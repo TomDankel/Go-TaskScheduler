@@ -15,22 +15,12 @@ var high int
 func main() {
 	measruetime()
 	edf := EdfScheduler.NewEdfScheduler()
-	fib1 := NewFibonacci(small)
-	fib1.SetName("short period task")
-	fib2 := NewFibonacci(mid)
-	fib2.SetName("middle period task")
-	fib3 := NewFibonacci(high)
-	fib3.SetName("long period task")
-	fib1.SetDeadline(time.Now().Add(time.Minute * 3))
-	fib2.SetDeadline(time.Now().Add(time.Minute * 2))
-	fib3.SetDeadline(time.Now().Add(time.Minute * 1))
-	fib1.RunPeriodic(edf, 100, 200)
-	fib2.RunPeriodic(edf, 1000, 20)
-	fib3.RunPeriodic(edf, 10000, 2)
+	RunPeriodic(edf, 100, 200, "short period task", small)
+	RunPeriodic(edf, 1000, 20, "middle period task", mid)
+	RunPeriodic(edf, 10000, 2, "long period task", high)
 	edf.Wg.Add(1)
 	go edf.Run()
-	time.Sleep(10 * time.Second)
-	edf.EndScheduler()
+	time.Sleep(200 * time.Second)
 	edf.EndScheduler()
 	edf.Wg.Wait()
 }
@@ -60,9 +50,11 @@ func (fib *Fibonacci) Run() {
 	fib.Finished()
 }
 
-func (fib *Fibonacci) RunPeriodic(edf *EdfScheduler.SchedulerI, period int, iteration int) {
+func RunPeriodic(edf *EdfScheduler.SchedulerI, period int, iteration int, name string, length int) {
 	currentTime := time.Now().Add(time.Minute)
 	for i := 0; i < iteration; i++ {
+		fib := NewFibonacci(length)
+		fib.SetName(name)
 		var offset time.Duration
 		offset = time.Duration(period * i)
 		fib.SetDeadline(currentTime.Add(offset * time.Millisecond))

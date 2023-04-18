@@ -49,29 +49,31 @@ func (s *SchedulerI) Schedule(obj task.Task) {
 		id:       s.id,
 		run:      false,
 	}
-	s.id++
 	s.insertToJobs(job)
+	s.id++
 }
 
 func (s *SchedulerI) insertToJobs(job job) {
-	mutex.Lock()
 	inserted := false
 	if len(s.jobs) == 0 {
 		s.jobs = append(s.jobs, job)
 	} else {
 		for index, currentJob := range s.jobs {
 			if job.Deadline.Before(currentJob.Deadline) {
+				mutex.Lock()
 				s.jobs = append(s.jobs[:index+1], s.jobs[index:]...)
 				s.jobs[index] = job
+				mutex.Unlock()
 				inserted = true
 				break
 			}
 		}
 		if inserted == false {
+			mutex.Lock()
 			s.jobs = append(s.jobs, job)
+			mutex.Unlock()
 		}
 	}
-	mutex.Unlock()
 }
 
 func (s *SchedulerI) EndScheduler() {
@@ -106,22 +108,29 @@ func (s *SchedulerI) Run() {
 					if !removed {
 						currentJob.task.Suspend()
 						currentJob.run = true
+						mutex.Lock()
 						s.insertToJobs(currentJob)
+						mutex.Unlock()
 					}
 					currentJob = s.jobs[0]
 					removed = false
 				}
 			}
 			if currentJob.Deadline.Before(time.Now()) {
-				fmt.Printf("Missed deadline for job: %d", currentJob.id)
+				fmt.Printf("Missed Deadline for job %d with name: %s\n", currentJob.id, currentJob.task.GetName())
 				currentJob.task.Kill()
+				mutex.Lock()
 				s.jobs = remove(s.jobs)
+				mutex.Unlock()
 				removed = true
+				fmt.Println("Removed job")
 				continue
 			}
 			if currentJob.task.CheckFinished() {
 				fmt.Printf("finished %d with name: %s\n", currentJob.id, currentJob.task.GetName())
+				mutex.Lock()
 				s.jobs = remove(s.jobs)
+				mutex.Unlock()
 				removed = true
 				continue
 			}
@@ -136,8 +145,6 @@ func (s *SchedulerI) Run() {
 }
 
 func remove(slice []job) []job {
-	mutex.Lock()
 	slice = slice[1:]
-	mutex.Unlock()
 	return slice
 }

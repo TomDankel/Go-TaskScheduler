@@ -33,10 +33,10 @@ type TaskI struct {
 
 func NewTaskI() *TaskI {
 	task := &TaskI{}
-	task.suspendCh = make(chan bool)
-	task.resumeCh = make(chan bool)
-	task.killCh = make(chan bool)
-	task.finishedCh = make(chan bool)
+	task.suspendCh = make(chan bool, 5)
+	task.resumeCh = make(chan bool, 5)
+	task.killCh = make(chan bool, 5)
+	task.finishedCh = make(chan bool, 5)
 	return task
 }
 

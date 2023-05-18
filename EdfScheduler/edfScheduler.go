@@ -91,9 +91,9 @@ func (s *SchedulerI) Run() {
 		case abort := <-s.quit:
 			if abort {
 				fmt.Println("End EDF Scheduler")
-				/*if (len(s.jobs) > 0) && (!currentJob.task.CheckFinished()) {
+				if (len(s.jobs) > 0) && (!currentJob.task.CheckFinished()) {
 					//currentJob.task.Kill()
-				}*/
+				}
 				return
 			}
 		default:
@@ -106,11 +106,12 @@ func (s *SchedulerI) Run() {
 			} else {
 				if currentJob.id != s.jobs[0].id {
 					if !removed {
+						fmt.Println("paused 12433")
+						fmt.Println(currentJob.id)
 						currentJob.task.Suspend()
+						fmt.Println("333")
 						currentJob.run = true
-						mutex.Lock()
 						s.insertToJobs(currentJob)
-						mutex.Unlock()
 					}
 					currentJob = s.jobs[0]
 					removed = false

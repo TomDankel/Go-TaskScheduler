@@ -20,7 +20,12 @@ func main() {
 	RunPeriodic(edf, 10000, 2, "long period task", high)
 	edf.Wg.Add(1)
 	go edf.Run()
-	time.Sleep(200 * time.Second)
+	time.Sleep(20 * time.Second)
+	fib := NewFibonacci(high)
+	fib.SetName("test long")
+	fib.SetDeadline(time.Now().Add(2 * time.Second))
+	edf.Schedule(fib)
+	time.Sleep(300 * time.Second)
 	edf.EndScheduler()
 	edf.Wg.Wait()
 }
@@ -46,12 +51,14 @@ func (fib *Fibonacci) Run() {
 		c = a
 		a = b
 		b = c + b
+		//time.Sleep(2 * time.Second)
 	}
+
 	fib.Finished()
 }
 
 func RunPeriodic(edf *EdfScheduler.SchedulerI, period int, iteration int, name string, length int) {
-	currentTime := time.Now().Add(time.Minute)
+	currentTime := time.Now().Add(5 * time.Minute)
 	for i := 0; i < iteration; i++ {
 		fib := NewFibonacci(length)
 		fib.SetName(name)
@@ -66,7 +73,7 @@ func measruetime() {
 	a := 0
 	b := 1
 	c := 0
-	deadline := time.Now().Add(10 * time.Millisecond)
+	deadline := time.Now().Add(8 * time.Millisecond)
 	for i := 0; i < 100000000; i++ {
 		if time.Now().After(deadline) {
 			small = i + 2
@@ -79,7 +86,7 @@ func measruetime() {
 	a = 0
 	b = 1
 	c = 0
-	deadline = time.Now().Add(100 * time.Millisecond)
+	deadline = time.Now().Add(90 * time.Millisecond)
 	for i := 0; i < 100000000; i++ {
 		if time.Now().After(deadline) {
 			mid = i + 2
@@ -92,7 +99,7 @@ func measruetime() {
 	a = 0
 	b = 1
 	c = 0
-	deadline = time.Now().Add(2000 * time.Millisecond)
+	deadline = time.Now().Add(1900 * time.Millisecond)
 	for i := 0; i < 100000000000; i++ {
 		if time.Now().After(deadline) {
 			high = i + 2

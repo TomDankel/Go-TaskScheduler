@@ -33,10 +33,10 @@ type TaskI struct {
 
 func NewTaskI() *TaskI {
 	task := &TaskI{}
-	task.suspendCh = make(chan bool, 5)
-	task.resumeCh = make(chan bool, 5)
-	task.killCh = make(chan bool, 5)
-	task.finishedCh = make(chan bool, 5)
+	task.suspendCh = make(chan bool, 1)
+	task.resumeCh = make(chan bool, 1)
+	task.killCh = make(chan bool, 1)
+	task.finishedCh = make(chan bool)
 	return task
 }
 
@@ -84,8 +84,16 @@ func (th *TaskI) Control() bool {
 		return true
 	}
 	if th.checkChanel(th.suspendCh) {
-		for true {
-			fmt.Println("Routine Paused")
+		select {
+		case <-th.resumeCh:
+			fmt.Println("Routine Resumed")
+			return false
+		case <-th.killCh:
+			fmt.Println("Routine Killed")
+			return true
+		}
+		/*for true {
+			//fmt.Println("Routine Paused")
 			if th.checkChanel(th.resumeCh) {
 				fmt.Println("Routine Resumed")
 				return false
@@ -94,7 +102,7 @@ func (th *TaskI) Control() bool {
 				fmt.Println("Routine Killed")
 				return true
 			}
-		}
+		}*/
 	}
 	return false
 }

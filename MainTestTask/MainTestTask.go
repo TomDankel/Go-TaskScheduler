@@ -25,7 +25,7 @@ func main() {
 	fib.SetName("test long")
 	fib.SetDeadline(time.Now().Add(2 * time.Second))
 	edf.Schedule(fib)
-	time.Sleep(300 * time.Second)
+	time.Sleep(30 * time.Second)
 	edf.EndScheduler()
 	edf.Wg.Wait()
 }

@@ -92,7 +92,7 @@ func (s *SchedulerI) Run() {
 			if abort {
 				fmt.Println("End EDF Scheduler")
 				if (len(s.jobs) > 0) && (!currentJob.task.CheckFinished()) {
-					//currentJob.task.Kill()
+					currentJob.task.Kill()
 				}
 				return
 			}
@@ -106,10 +106,8 @@ func (s *SchedulerI) Run() {
 			} else {
 				if currentJob.id != s.jobs[0].id {
 					if !removed {
-						fmt.Println("paused 12433")
 						fmt.Println(currentJob.id)
 						currentJob.task.Suspend()
-						fmt.Println("333")
 						currentJob.run = true
 						s.insertToJobs(currentJob)
 					}

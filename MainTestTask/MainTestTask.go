@@ -51,7 +51,6 @@ func (fib *Fibonacci) Run() {
 		c = a
 		a = b
 		b = c + b
-		//time.Sleep(2 * time.Second)
 	}
 
 	fib.Finished()
@@ -112,11 +111,3 @@ func measruetime() {
 	}
 	fmt.Printf("Small: %d, mid: %d, high: %d\n", small, mid, high)
 }
-
-/*
-	3 tasks:
-		- 10ms execution alle 100ms
-		- 100ms execution alle 1000ms
-		- 2000ms execution alle 10000ms
-	Ausgabe: name
-*/

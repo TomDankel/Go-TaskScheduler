@@ -7,7 +7,6 @@ import (
 )
 
 type Task interface {
-	PlayFunction(func(Task))
 	PlayMethod(func())
 	Resume()
 	Suspend()
@@ -42,10 +41,6 @@ func NewTaskI() *TaskI {
 
 func (th *TaskI) PlayMethod(method func()) {
 	go method()
-}
-
-func (th *TaskI) PlayFunction(method func(task Task)) {
-	go method(th)
 }
 func (th *TaskI) Resume() {
 	fmt.Println("Resume Go Routine")
@@ -92,17 +87,6 @@ func (th *TaskI) Control() bool {
 			fmt.Println("Routine Killed")
 			return true
 		}
-		/*for true {
-			//fmt.Println("Routine Paused")
-			if th.checkChanel(th.resumeCh) {
-				fmt.Println("Routine Resumed")
-				return false
-			}
-			if th.checkChanel(th.killCh) {
-				fmt.Println("Routine Killed")
-				return true
-			}
-		}*/
 	}
 	return false
 }

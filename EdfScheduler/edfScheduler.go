@@ -8,7 +8,8 @@ import (
 	"time"
 )
 
-var mutex = &sync.Mutex{}
+var mutexJob = &sync.Mutex{}
+var mutexId = &sync.Mutex{}
 
 type EdfScheduler interface {
 	Schedule(task.Task)
@@ -42,6 +43,7 @@ func NewEdfScheduler() *SchedulerI {
 }
 
 func (s *SchedulerI) Schedule(obj task.Task) {
+	mutexId.Lock()
 	job := job{
 		function: obj.Run,
 		Deadline: obj.GetDeadline(),
@@ -49,8 +51,9 @@ func (s *SchedulerI) Schedule(obj task.Task) {
 		id:       s.id,
 		run:      false,
 	}
-	s.insertToJobs(job)
 	s.id++
+	mutexId.Unlock()
+	s.insertToJobs(job)
 }
 
 func (s *SchedulerI) insertToJobs(job job) {
@@ -60,18 +63,18 @@ func (s *SchedulerI) insertToJobs(job job) {
 	} else {
 		for index, currentJob := range s.jobs {
 			if job.Deadline.Before(currentJob.Deadline) {
-				mutex.Lock()
+				mutexJob.Lock()
 				s.jobs = append(s.jobs[:index+1], s.jobs[index:]...)
 				s.jobs[index] = job
-				mutex.Unlock()
+				mutexJob.Unlock()
 				inserted = true
 				break
 			}
 		}
 		if inserted == false {
-			mutex.Lock()
+			mutexJob.Lock()
 			s.jobs = append(s.jobs, job)
-			mutex.Unlock()
+			mutexJob.Unlock()
 		}
 	}
 }
@@ -118,18 +121,18 @@ func (s *SchedulerI) Run() {
 			if currentJob.Deadline.Before(time.Now()) {
 				fmt.Printf("Missed Deadline for job %d with name: %s\n", currentJob.id, currentJob.task.GetName())
 				currentJob.task.Kill()
-				mutex.Lock()
+				mutexJob.Lock()
 				s.jobs = remove(s.jobs)
-				mutex.Unlock()
+				mutexJob.Unlock()
 				removed = true
 				fmt.Println("Removed job")
 				continue
 			}
 			if currentJob.task.CheckFinished() {
 				fmt.Printf("finished %d with name: %s\n", currentJob.id, currentJob.task.GetName())
-				mutex.Lock()
+				mutexJob.Lock()
 				s.jobs = remove(s.jobs)
-				mutex.Unlock()
+				mutexJob.Unlock()
 				removed = true
 				continue
 			}

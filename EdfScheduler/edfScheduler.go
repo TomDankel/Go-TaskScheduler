@@ -88,6 +88,7 @@ func (s *SchedulerI) Run() {
 	defer s.Wg.Done()
 	var currentJob job
 	var removed bool
+	switched := true
 	iteration := false
 	for {
 		select {
@@ -108,6 +109,7 @@ func (s *SchedulerI) Run() {
 				iteration = true
 			} else {
 				if currentJob.id != s.jobs[0].id {
+					switched = true
 					if !removed {
 						fmt.Println(currentJob.id)
 						currentJob.task.Suspend()
@@ -136,10 +138,13 @@ func (s *SchedulerI) Run() {
 				removed = true
 				continue
 			}
-			if currentJob.run {
-				currentJob.task.Resume()
-			} else {
-				currentJob.task.PlayMethod(currentJob.function)
+			if switched {
+				switched = false
+				if currentJob.run {
+					currentJob.task.Resume()
+				} else {
+					currentJob.task.PlayMethod(currentJob.function)
+				}
 			}
 			time.Sleep(time.Second)
 		}

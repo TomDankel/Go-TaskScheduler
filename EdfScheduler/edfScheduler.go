@@ -13,7 +13,6 @@ var mutexId = &sync.Mutex{}
 
 type EdfScheduler interface {
 	Schedule(task.Task)
-	insertToJobs(job)
 	Run()
 	EndScheduler()
 }
@@ -39,6 +38,7 @@ func NewEdfScheduler() *SchedulerI {
 		jobs: make([]job, 0),
 		id:   0,
 	}
+	scheduler.Wg.Add(1)
 	return scheduler
 }
 

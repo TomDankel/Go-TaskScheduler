@@ -8,17 +8,12 @@ import (
 	"time"
 )
 
-var small int
-var mid int
-var high int
-
 func main() {
-	measruetime()
+	small, mid, high := measruetime()
 	edf := EdfScheduler.NewEdfScheduler()
 	RunPeriodic(edf, 100, 200, "short period task", small)
 	RunPeriodic(edf, 1000, 20, "middle period task", mid)
 	RunPeriodic(edf, 10000, 2, "long period task", high)
-	edf.Wg.Add(1)
 	go edf.Run()
 	time.Sleep(20 * time.Second)
 	fib := NewFibonacci(high)
@@ -68,7 +63,10 @@ func RunPeriodic(edf *EdfScheduler.SchedulerI, period int, iteration int, name s
 	}
 }
 
-func measruetime() {
+func measruetime() (int, int, int) {
+	var small int
+	var mid int
+	var high int
 	a := 0
 	b := 1
 	c := 0
@@ -110,4 +108,5 @@ func measruetime() {
 
 	}
 	fmt.Printf("Small: %d, mid: %d, high: %d\n", small, mid, high)
+	return small, mid, high
 }

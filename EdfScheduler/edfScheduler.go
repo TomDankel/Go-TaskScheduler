@@ -146,7 +146,7 @@ func (s *SchedulerI) Run() {
 					currentJob.task.PlayMethod(currentJob.function)
 				}
 			}
-			time.Sleep(time.Second)
+			time.Sleep(10 * time.Millisecond)
 		}
 	}
 }

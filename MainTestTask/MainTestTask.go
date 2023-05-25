@@ -8,12 +8,12 @@ import (
 	"time"
 )
 
-func main() {
-	small, mid, high := measruetime()
+func testTask() {
+	small, mid, high := measuretime()
 	edf := EdfScheduler.NewEdfScheduler()
-	RunPeriodic(edf, 100, 200, "short period task", small)
-	RunPeriodic(edf, 1000, 20, "middle period task", mid)
-	RunPeriodic(edf, 10000, 2, "long period task", high)
+	RunPeriodic(edf, 100, 200, "short period task", small, 5)
+	RunPeriodic(edf, 1000, 20, "middle period task", mid, 5)
+	RunPeriodic(edf, 10000, 2, "long period task", high, 5)
 	go edf.Run()
 	time.Sleep(20 * time.Second)
 	fib := NewFibonacci(high)
@@ -51,19 +51,19 @@ func (fib *Fibonacci) Run() {
 	fib.Finished()
 }
 
-func RunPeriodic(edf *EdfScheduler.SchedulerI, period int, iteration int, name string, length int) {
-	currentTime := time.Now().Add(5 * time.Minute)
+func RunPeriodic(edf *EdfScheduler.SchedulerI, period time.Duration, iteration int, name string, length int, timeoffset time.Duration) {
+	currentTime := time.Now().Add(timeoffset * time.Minute)
 	for i := 0; i < iteration; i++ {
 		fib := NewFibonacci(length)
 		fib.SetName(name)
 		var offset time.Duration
-		offset = time.Duration(period * i)
+		offset = period * time.Duration(i)
 		fib.SetDeadline(currentTime.Add(offset * time.Millisecond))
 		edf.Schedule(fib)
 	}
 }
 
-func measruetime() (int, int, int) {
+func measuretime() (int, int, int) {
 	var small int
 	var mid int
 	var high int

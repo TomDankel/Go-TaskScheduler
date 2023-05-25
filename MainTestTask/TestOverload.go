@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+//authors: Tom Dankel and Luca Schwarz
+
 func testOverload() {
 	small, mid, high := measuretime()
 	edf := EdfScheduler.NewEdfScheduler()

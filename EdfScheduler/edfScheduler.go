@@ -88,7 +88,7 @@ func (s *SchedulerI) Run() {
 	defer s.Wg.Done()
 	var currentJob job
 	var removed bool
-	switched := true
+	var switched bool
 	iteration := false
 	for {
 		select {
@@ -105,6 +105,7 @@ func (s *SchedulerI) Run() {
 		if len(s.jobs) > 0 {
 
 			if !iteration {
+				switched = true
 				currentJob = s.jobs[0]
 				iteration = true
 			} else {
@@ -114,7 +115,6 @@ func (s *SchedulerI) Run() {
 						fmt.Println(currentJob.id)
 						currentJob.task.Suspend()
 						currentJob.run = true
-						s.insertToJobs(currentJob)
 					}
 					currentJob = s.jobs[0]
 					removed = false

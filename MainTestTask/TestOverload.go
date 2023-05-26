@@ -8,7 +8,7 @@ import (
 //authors: Tom Dankel and Luca Schwarz
 
 func testOverload() {
-	small, mid, high := measuretime()
+	small, mid, high := measuretime(10, 100, 1000)
 	edf := EdfScheduler.NewEdfScheduler()
 	RunPeriodic(edf, 10, 200, "short period task", small, 0)
 	RunPeriodic(edf, 100, 20, "middle period task", mid, 0)

@@ -47,14 +47,14 @@ func RunPeriodic(edf *EdfScheduler.SchedulerI, period time.Duration, iteration i
 	}
 }
 
-func measuretime() (int, int, int) {
+func measuretime(intervallS time.Duration, intervallM time.Duration, intervallL time.Duration) (int, int, int) {
 	var small int
 	var mid int
 	var high int
 	a := 0
 	b := 1
 	c := 0
-	deadline := time.Now().Add(8 * time.Millisecond)
+	deadline := time.Now().Add(intervallS * time.Millisecond)
 	for i := 0; i < 100000000; i++ {
 		if time.Now().After(deadline) {
 			small = i + 2
@@ -67,7 +67,7 @@ func measuretime() (int, int, int) {
 	a = 0
 	b = 1
 	c = 0
-	deadline = time.Now().Add(90 * time.Millisecond)
+	deadline = time.Now().Add(intervallM * time.Millisecond)
 	for i := 0; i < 100000000; i++ {
 		if time.Now().After(deadline) {
 			mid = i + 2
@@ -80,7 +80,7 @@ func measuretime() (int, int, int) {
 	a = 0
 	b = 1
 	c = 0
-	deadline = time.Now().Add(1900 * time.Millisecond)
+	deadline = time.Now().Add(intervallL * time.Millisecond)
 	for i := 0; i < 100000000000; i++ {
 		if time.Now().After(deadline) {
 			high = i + 2

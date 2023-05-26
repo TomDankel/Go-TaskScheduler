@@ -2,9 +2,8 @@
 
 ## Introduction
 
-This Repository contains a Thread package and a Scheduler package. The Thread package allows the user to interact with Go Routines
-as well as stop and pause them. The Scheduler Package provides an EDF (Earliest Deadline First) Scheduler. Also a thesis about this
-Topic can be found in the document folder.
+This Repository contains a Task package and a EDFScheduler package. The TAsk package allows the user to interact with Go Routines
+as well as stop and pause them. The EDFScheduler Package provides an EDF (Earliest Deadline First) Scheduler.
 
 ## Authors
 

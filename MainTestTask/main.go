@@ -3,7 +3,7 @@ package main
 //authors: Tom Dankel and Luca Schwarz
 
 func main() {
-	testTask()
+	//testTask()
 	//testOverload()
 	//testRMS()
 }
